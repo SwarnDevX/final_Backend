@@ -7,15 +7,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="iam-service" />
-        <module name="delivery-service" />
-        <module name="finance-service" />
-        <module name="contract-service" />
-        <module name="api-gateway" />
-        <module name="report-service" />
-        <module name="eureka-server" />
-        <module name="compliance-service" />
-        <module name="notification-service" />
       </profile>
       <profile name="Annotation profile for vendor-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -24,9 +15,20 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
         </processorPath>
-        <module name="vendor-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="api-gateway" target="17" />
+      <module name="compliance-service" target="17" />
+      <module name="contract-service" target="17" />
+      <module name="delivery-service" target="17" />
+      <module name="eureka-server" target="17" />
+      <module name="finance-service" target="17" />
+      <module name="iam-service" target="17" />
+      <module name="notification-service" target="17" />
+      <module name="report-service" target="17" />
+      <module name="vendor-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

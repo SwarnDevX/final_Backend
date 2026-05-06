@@ -1,0 +1,15 @@
+package com.buildledger.finance.enums;
+
+public enum PaymentStatus {
+    PENDING, PROCESSING, COMPLETED, FAILED;
+
+    public boolean canTransitionTo(PaymentStatus next) {
+        return switch (this) {
+            case PENDING    -> next == PROCESSING || next == FAILED;
+            case PROCESSING -> next == COMPLETED  || next == FAILED;
+            case COMPLETED  -> false; // terminal
+            case FAILED     -> false; // terminal
+        };
+    }
+}
+

@@ -1,0 +1,72 @@
+package com.buildledger.iam.exception;
+
+import com.buildledger.iam.dto.response.ApiResponseDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IamException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleIamException(IamException ex) {
+        log.error("IAM exception: {}", ex.getMessage());
+        return ResponseEntity.status(ex.getStatus())
+            .body(ApiResponseDTO.<Void>builder()
+                .success(false).message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponseDTO<Map<String, String>>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            errors.put(fieldName, error.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest()
+            .body(ApiResponseDTO.<Map<String, String>>builder()
+                .success(false).message("Validation failed").data(errors).build());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ApiResponseDTO.<Void>builder()
+                .success(false).message("Invalid username or password").build());
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleDisabled(DisabledException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ApiResponseDTO.<Void>builder()
+                .success(false).message("Account is disabled").build());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ApiResponseDTO.<Void>builder()
+                .success(false).message("Access denied: " + ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleGeneral(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ApiResponseDTO.<Void>builder()
+                .success(false).message("An unexpected error occurred").build());
+    }
+}
+
